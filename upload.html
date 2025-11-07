@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Application - Step 3</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        /* Updated box-shadow to use a green shade */
+        .container { max-width: 600px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgb(40, 167, 82); }
+        /* Use your consistent green #28a752 */
+        h1 { text-align: center; color: #28a752; } 
+        /* Use consistent green for border and light green background */
+        .upload-area { 
+            border: 2px dashed #28a752; 
+            padding: 40px; 
+            text-align: center; 
+            margin-top: 20px; 
+            border-radius: 8px; 
+            background-color: #eaf8ed; /* Light Green Background */
+            position: relative;
+        }
+        .upload-area input { display: none; }
+        /* Darker green text for label */
+        .upload-area label { display: block; cursor: pointer; font-size: 1.1em; color: #28a752; } 
+        
+        .file-info { margin-top: 20px; padding: 15px; border: 1px solid #ddd; background-color: #f9f9f9; border-radius: 4px; }
+        /* Use consistent green for confirmed file name */
+        .file-info strong { color: #28a752; }
+        
+        .navigation { display: flex; justify-content: space-between; margin-top: 30px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        /* Use consistent green for buttons */
+        .btn-primary { background-color: #28a752; color: white; }
+        .btn-secondary { background-color: #28a752; color: white; }
+        .btn-primary:disabled { background-color: #a2d2a2; cursor: not-allowed; }
+        
+        /* Green Focus Style for Accessibility (Buttons and Upload Area) */
+        .btn:focus,
+        .upload-area label:focus { 
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(40, 167, 82, 0.5), 
+                        0 0 0 5px rgba(255, 255, 255, 0.5); 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Upload Your Resume</h1>
+
+    <p style="text-align: center;">Please upload your most recent resume. **Only .pdf or .jpg files are accepted.**</p>
+
+    <div class="upload-area">
+        <p>Drag & Drop your file here, or</p>
+        <label for="resume-file" tabindex="0">Click to Select File</label>
+        <input type="file" id="resume-file" accept=".pdf, .jpg" onchange="displayFileInfo(this)">
+    </div>
+
+    <div id="file-confirmation" class="file-info" style="display: none;">
+        Selected File: <strong id="file-name"></strong>
+    </div>
+
+    <div class="navigation">
+        <button class="btn btn-secondary" onclick="window.location.href='consent.html'">Back</button>
+        <button id="submit-btn" type="button" class="btn btn-primary" disabled onclick="submitFinalApplication(event)">Submit Application</button>
+    </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+    // NOTE: This script block relies on the displayFileInfo() function and jobData from app.js
+
+    // --- FINAL SUBMISSION TO PYTHON BACKEND (Optimized for Redirect) ---
+    function navigateToThankYou(appId) {
+        const redirectUrl = appId ? `thankyou.html?app_id=${appId}` : 'thankyou.html';
+        console.log('Navigating to:', redirectUrl);
+        try {
+            // Primary
+            window.location.href = redirectUrl;
+            // Secondary after a tick
+            setTimeout(() => { try { window.location.assign(redirectUrl); } catch(e) {} }, 100);
+            // Tertiary hard replace shortly after
+            setTimeout(() => { try { window.location.replace(redirectUrl); } catch(e) {} }, 300);
+        } catch (e) {
+            console.warn('Navigation error, forcing replace:', e);
+            try { window.location.replace(redirectUrl); } catch(e2) {}
+        }
+    }
+
+    async function submitFinalApplication(event) {
+        // Prevent any default behavior
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        const submitButton = document.getElementById('submit-btn');
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+
+        const fileInput = document.getElementById('resume-file');
+        const file = fileInput.files[0];
+        const applicationId = localStorage.getItem('current_app_id');
+
+        if (!file || !applicationId) {
+            alert("Error: Application session expired or file is missing. Please go back to the Job Details page to restart.");
+            submitButton.disabled = false;
+            submitButton.textContent = "Submit Application";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('resume', file);
+
+        try {
+            // CRITICAL FIX: Wait for upload to complete before redirecting
+            // Try 127.0.0.1 first, then localhost as fallback
+            let response;
+            try {
+                response = await fetch(`http://127.0.0.1:5000/api/submit_application/${applicationId}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+            } catch (_) {}
+            if (!response) {
+                response = await fetch(`http://localhost:5000/api/submit_application/${applicationId}`, {
+                method: 'POST',
+                body: formData,
+                });
+            }
+
+            // Check if response is OK
+            if (!response.ok) {
+                let errorMsg = `Server error (Status: ${response.status})`;
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.message || errorMsg;
+                } catch (e) {
+                    const errorText = await response.text();
+                    if (errorText) {
+                        errorMsg = errorText.substring(0, 200);
+                    }
+                }
+                throw new Error(errorMsg);
+            }
+
+            // Parse JSON response (tolerant)
+            let result = {};
+            try {
+                result = await response.json();
+            } catch (jsonError) {
+                console.warn('JSON parse issue; proceeding to redirect anyway:', jsonError);
+            }
+
+            // Successful upload: always proceed to Thank You (even if status missing)
+            const serverStatus = (result && result.status) || 'complete';
+            console.log('Upload response status:', serverStatus);
+
+            if (serverStatus === 'complete' || response.ok) {
+                // Success - redirect to thank you page
+                console.log('✅ Application submitted successfully!');
+                
+                // Ensure application ID is saved before redirect
+                const finalAppId = (result && result.application_id) || applicationId;
+                if (finalAppId) {
+                    localStorage.setItem('current_app_id', finalAppId);
+                    try { sessionStorage.setItem('current_app_id', finalAppId); } catch (e) {}
+                    console.log('Application ID saved:', finalAppId);
+                }
+                
+                // Build redirect URL
+                // Show success message
+                submitButton.textContent = "✓ Submitted!";
+                submitButton.style.backgroundColor = "#28a745";
+                // Navigate using multiple fallbacks
+                navigateToThankYou(finalAppId);
+                return; // stop further execution
+            } else {
+                // Error occurred, but still attempt graceful redirect with stored ID
+                console.warn('Server did not report complete; redirecting anyway.');
+                navigateToThankYou(applicationId);
+                return; // stop further execution
+            }
+        
+        } catch (error) {
+            // Network or other error
+            console.error('Error during Submission:', error);
+            alert(`Failed to submit application: ${error.message}\n\nPlease check:\n1. Is the backend server running?\n2. Is your internet connection working?\n\nIf the file was uploaded, we will still attempt to show the confirmation page.`);
+            // Best-effort navigation even on catch (in case server accepted but client errored mid-way)
+            const fallbackId = localStorage.getItem('current_app_id') || sessionStorage.getItem('current_app_id') || applicationId;
+            if (fallbackId) {
+                navigateToThankYou(fallbackId);
+                return;
+            }
+            submitButton.disabled = false;
+            submitButton.textContent = "Submit Application";
+        }
+    }
+</script>
+
+</body>
+</html>

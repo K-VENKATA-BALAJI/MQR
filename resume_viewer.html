@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Viewer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f9; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: white; border-bottom: 1px solid #ddd; }
+        .title { font-size: 18px; font-weight: bold; color: #333; }
+        .controls { display: flex; gap: 8px; align-items: center; }
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
+        .pane { background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
+        .pane-header { padding: 8px 10px; border-bottom: 1px solid #eee; background: #fafafa; font-weight: bold; color: #333; display:flex; justify-content: space-between; align-items:center; }
+        .pane-body { flex: 1; min-height: 80vh; }
+        .frame { width: 100%; height: 100%; border: 0; }
+        .status { font-size: 12px; color: #666; padding: 6px 10px; border-top: 1px solid #eee; background: #fafafa; }
+        .info { color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="title">Resume Viewer</div>
+    <div class="controls">
+        <button class="btn btn-secondary" onclick="window.history.back()">Back</button>
+        <button id="open-pdf" class="btn btn-primary" disabled>Open PDF in New Tab</button>
+        <button id="open-highlighted" class="btn btn-primary" disabled>Open Highlighted in New Tab</button>
+    </div>
+    </div>
+
+<div class="layout">
+    <div class="pane">
+        <div class="pane-header">Original PDF</div>
+        <div class="pane-body" id="pdf-container">
+            <iframe id="pdf-frame" class="frame" title="Original PDF"></iframe>
+        </div>
+        <div id="pdf-status" class="status">Loading PDF...</div>
+    </div>
+    <div class="pane">
+        <div class="pane-header">Highlighted View (ATS)</div>
+        <div class="pane-body" id="highlight-container">
+            <iframe id="highlight-frame" class="frame" title="Highlighted HTML"></iframe>
+        </div>
+        <div id="highlight-status" class="status">Loading highlighted view...</div>
+    </div>
+</div>
+
+<script>
+    // Configure these for your environment
+    const BASE_URL = "http://127.0.0.1:5000";
+    const RECRUITER_KEY = "YourVerySecretRecruiterKey12345";
+
+    function getParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name) || "";
+    }
+
+    async function fetchWithKey(url, asBlob = false) {
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: { 'X-Recruiter-Key': RECRUITER_KEY }
+        });
+        if (!res.ok) {
+            let msg = `HTTP ${res.status}`;
+            try {
+                const ct = res.headers.get('content-type');
+                if (ct && ct.includes('application/json')) {
+                    const j = await res.json();
+                    if (j && j.message) msg = j.message;
+                } else {
+                    const t = await res.text();
+                    if (t && t.length < 500) msg = t;
+                }
+            } catch {}
+            throw new Error(msg);
+        }
+        return asBlob ? res.blob() : res.text();
+    }
+
+    async function loadFrames() {
+        const appId = getParam('app_id');
+        const pdfStatus = document.getElementById('pdf-status');
+        const hlStatus = document.getElementById('highlight-status');
+        const pdfFrame = document.getElementById('pdf-frame');
+        const highlightFrame = document.getElementById('highlight-frame');
+        const btnPdf = document.getElementById('open-pdf');
+        const btnHl = document.getElementById('open-highlighted');
+
+        if (!appId) {
+            pdfStatus.textContent = 'Missing app_id in URL (?app_id=...)';
+            hlStatus.textContent = 'Missing app_id in URL (?app_id=...)';
+            return;
+        }
+
+        // Load PDF via fetch to attach header, then object URL
+        try {
+            const pdfBlob = await fetchWithKey(`${BASE_URL}/api/view_resume/${appId}`, true);
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            pdfFrame.src = pdfUrl;
+            pdfStatus.textContent = 'PDF loaded.';
+            btnPdf.disabled = false;
+            btnPdf.onclick = () => { window.open(pdfUrl, '_blank'); };
+        } catch (e) {
+            pdfStatus.textContent = `Failed to load PDF: ${e.message}`;
+        }
+
+        // Load highlighted HTML (text) and write into iframe
+        try {
+            const htmlText = await fetchWithKey(`${BASE_URL}/api/view_resume_highlighted/${appId}`, false);
+            const blob = new Blob([htmlText], { type: 'text/html' });
+            const htmlUrl = URL.createObjectURL(blob);
+            highlightFrame.src = htmlUrl;
+            hlStatus.textContent = 'Highlighted view loaded.';
+            btnHl.disabled = false;
+            btnHl.onclick = () => { window.open(htmlUrl, '_blank'); };
+        } catch (e) {
+            hlStatus.textContent = `Failed to load highlighted view: ${e.message}`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadFrames);
+</script>
+
+</body>
+</html>
+
+

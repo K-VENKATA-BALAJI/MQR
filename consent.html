@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Application - Step 2 (Details)</title>
+    <style>
+        /* General Styles */
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgb(40, 167, 82); }
+        h1 { text-align: center; color: #28a752; margin-bottom: 25px; }
+        .navigation { display: flex; justify-content: space-between; margin-top: 30px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .btn-primary { background-color: #28a752; color: white; }
+        .btn-secondary { background-color: #28a752; color: white; }
+        .btn-action { background-color: #f4f4f9; color: #28a752; border: 1px solid #28a752; padding: 8px 15px; }
+        .btn-action:hover { background-color: #eaf8ed; }
+
+        /* Form Section Styles (The Hub Checklist) */
+        .section-list { list-style: none; padding: 0; }
+        .section-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            background-color: #fff;
+        }
+        .section-item strong { color: #333; }
+        .status { font-weight: bold; }
+        .status.incomplete { color: red; }
+        .status.complete { color: #28a752; }
+
+        /* --- ACCORDION/EXPANDABLE SECTION STYLES --- */
+        .accordion-header {
+            background-color: #f4f4f9; 
+            color: #333;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.1em;
+            transition: 0.4s;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+        .accordion-header:hover {
+            background-color: #eaf8ed;
+            color: #28a752;
+        }
+        .accordion-header .status {
+            font-size: 0.9em;
+            padding: 3px 8px;
+            border-radius: 3px;
+            background-color: #ffe0e0; 
+            color: red;
+        }
+        .accordion-header .status.complete {
+            background-color: #eaf8ed; 
+            color: #28a752;
+        }
+        .accordion-content {
+            padding: 0 18px;
+            background-color: white;
+            max-height: 0; 
+            overflow: hidden;
+            transition: max-height 0.2s ease-out, padding 0.2s ease-out;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 2000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-content h2 { color: #28a752; border-bottom: 2px solid #eaf8ed; padding-bottom: 10px; margin-top: 0; }
+        
+        /* Form Layout */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-row { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 15px; 
+            padding-top: 10px;
+        }
+        
+        input[type="text"], input[type="email"], input[type="date"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        /* Focus Style for Form Elements */
+        input:focus, select:focus, .btn:focus, .btn-action:focus {
+            outline: none; 
+            border-color: #28a752;
+            box-shadow: 0 0 0 3px rgba(40, 167, 82, 0.5); 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Step 2: Complete Application Details</h1>
+    <p>Please complete all required sections below to proceed to the document upload step.</p>
+
+    <!-- Quick Test Data Controls -->
+    <div style="margin: 10px 0 20px 0; padding: 10px; background:#f8f9fa; border:1px solid #ddd; border-radius:4px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <strong style="color:#333;">Quick Test Data:</strong>
+        <select id="test-data-select" style="padding:6px; border:1px solid #ccc; border-radius:4px;">
+            <option value="">-- Select a preset --</option>
+            <option value="ds_fresher">Data Science - Fresher</option>
+            <option value="fe_junior">Frontend - Junior</option>
+            <option value="be_intern">Backend - Intern</option>
+        </select>
+        <button class="btn btn-action" onclick="applyTestData(false)">Apply</button>
+        <button class="btn btn-action" onclick="applyTestData(true)">Apply Random</button>
+        <span id="test-data-status" style="color:#666; font-size:0.9em;"></span>
+    </div>
+
+    <ul class="section-list">
+        <li class="section-item" id="personal-details-item">
+            <span><strong>1. Personal Details</strong> (Name, DOB, Marital Status, etc.)</span>
+            <div>
+                <span class="status incomplete" id="personal-details-status">Incomplete</span>
+                <button class="btn btn-action" onclick="openModal('personalDetailsModal', 'personal')">Fill Details</button>
+            </div>
+        </li>
+
+        <li style="border: none; padding: 0; margin-bottom: 20px;">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span>2. Communication Details</span>
+                <span class="status incomplete" id="communication-status">Incomplete</span>
+            </button>
+            <div class="accordion-content" id="communication-content">
+                <form id="communication-form" onsubmit="event.preventDefault(); submitCommunicationDetails();">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="altEmail">Alternate Email</label>
+                            <input type="email" id="altEmail">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="text" id="phone" required pattern="[0-9]{10,15}" title="Enter a valid phone number (10 to 15 digits).">
+                        </div>
+                        <div class="form-group">
+                            <label for="altPhone">Alternate Phone Number</label>
+                            <input type="text" id="altPhone" pattern="[0-9]{10,15}" title="Enter a valid phone number (10 to 15 digits).">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tempAddress">Temporary Address *</label>
+                        <input type="text" id="tempAddress" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="permAddress">Permanent Address *</label>
+                        <input type="text" id="permAddress" required>
+                        <div class="checkbox-container" style="margin-top: 5px;">
+                            <input type="checkbox" id="sameAsTemp" onchange="copyAddress()">
+                            <label for="sameAsTemp" style="display:inline; font-weight: normal;">Same as Temporary Address</label>
+                        </div>
+                    </div>
+                    
+                    <div class="navigation" style="justify-content: flex-end; padding-bottom: 15px; margin-top: 15px;">
+                        <button type="submit" class="btn btn-primary">Save Communication Details</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+
+        <li style="border: none; padding: 0; margin-bottom: 20px;">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span>3. Financial Details</span>
+                <span class="status incomplete" id="financial-status">Incomplete</span>
+            </button>
+            <div class="accordion-content" id="financial-content">
+                <form id="financial-form" onsubmit="event.preventDefault(); submitFinancialDetails();">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pan">PAN Number *</label>
+                            <input type="text" id="pan" required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter a valid 10-character PAN.">
+                        </div>
+                        <div class="form-group">
+                            <label for="aadhaar">Aadhaar Number *</label>
+                            <input type="text" id="aadhaar" required pattern="[0-9]{12}" title="Enter a valid 12-digit Aadhaar number.">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bankName">Bank Name *</label>
+                            <input type="text" id="bankName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="accountNumber">Account Number *</label>
+                            <input type="text" id="accountNumber" required pattern="[0-9]{9,18}" title="Enter a valid account number.">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ifscCode">IFSC Code *</label>
+                        <input type="text" id="ifscCode" required pattern="[A-Za-z]{4}0[A-Z0-9]{6}" title="Enter a valid 11-character IFSC code.">
+                    </div>
+                    
+                    <div class="navigation" style="justify-content: flex-end; padding-bottom: 15px; margin-top: 15px; gap: 10px;">
+                        <button type="button" class="btn btn-secondary" onclick="skipFinancialDetails()">Skip for Now</button> 
+                        <button type="submit" class="btn btn-primary">Save Financial Details</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+
+        <li style="border: none; padding: 0; margin-bottom: 20px;">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span>4. Education Details</span>
+                <span class="status incomplete" id="education-status">Incomplete</span>
+            </button>
+            <div class="accordion-content" id="education-content">
+                <form id="education-form" onsubmit="event.preventDefault(); submitEducationDetails();">
+                    
+                    <div id="education-entries">
+                        <div class="education-entry" style="border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
+                            <h4 style="margin-top: 0; color: #333;">Degree 1</h4>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="degree1">Degree/Certificate *</label>
+                                    <input type="text" class="degree-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="institution1">Institution/University *</label>
+                                    <input type="text" class="institution-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="branchName1">Branch Name *</label>
+                                    <input type="text" class="branch-input" required> 
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="grade1">Percentage/CGPA *</label>
+                                    <input type="text" class="grade-input" required> 
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate1">Start Date *</label>
+                                    <input type="date" class="start-date-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate1">End Date/Graduation Date *</label>
+                                    <input type="date" class="end-date-input" required>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-secondary" style="background-color: #dc3545; color: white;" onclick="removeEducationEntry(this)">Remove</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-action" onclick="addEducationEntry()">+ Add Another Education</button>
+                    
+                    <div class="navigation" style="justify-content: flex-end; padding-bottom: 15px; margin-top: 25px;">
+                        <button type="submit" class="btn btn-primary">Save Education Details</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+
+        <li style="border: none; padding: 0; margin-bottom: 20px;">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span>5. Work Experience Details</span>
+                <span class="status incomplete" id="work-status">Incomplete</span>
+            </button>
+            <div class="accordion-content" id="work-content">
+                <form id="work-form" onsubmit="event.preventDefault(); submitWorkDetails();">
+                    
+                    <div id="work-entries">
+                        <div class="work-entry" style="border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
+                            <h4 style="margin-top: 0; color: #333;">Job 1</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="companyName1">Company Name *</label>
+                                    <input type="text" class="company-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jobTitle1">Job Title/Role *</label>
+                                    <input type="text" class="title-input" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="startDate1">Start Date *</label>
+                                    <input type="date" class="start-date-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate1">End Date/Present *</label>
+                                    <input type="date" class="end-date-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="reasonForLeaving1">Reason for Leaving</label>
+                                    <input type="text" class="reason-input">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secondary" style="background-color: #dc3545; color: white;" onclick="removeWorkEntry(this)">Remove</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-action" onclick="addWorkEntry()">+ Add Another Work Experience</button>
+                    
+                    <div class="navigation" style="justify-content: flex-end; padding-bottom: 15px; margin-top: 25px; gap: 10px;">
+                        <button type="button" class="btn btn-secondary" onclick="skipWorkDetails()">Skip if fresher</button> 
+                        <button type="submit" class="btn btn-primary">Save Work Experience</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+
+        <li style="border: none; padding: 0; margin-bottom: 20px;">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span>6. Onboarding Address & Company Assets</span>
+                <span class="status incomplete" id="onboarding-status">Incomplete</span>
+            </button>
+            <div class="accordion-content" id="onboarding-content">
+                <form id="onboarding-form" onsubmit="event.preventDefault(); submitOnboardingDetails();">
+                    
+                    <div class="form-group">
+                        <label for="onboardingAddress">Preferred Onboarding Address *</label>
+                        <input type="text" id="onboardingAddress" required placeholder="The location where you will report on your start date.">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 25px;">
+                        <h4 style="margin-top: 0; color: #333; border-bottom: 1px dashed #eee; padding-bottom: 5px;">Company Asset Policy</h4>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label for="assetAcknowledgement" style="font-weight: normal; display: inline;">
+                                <input type="checkbox" id="assetAcknowledgement" required style="width: auto; margin-right: 10px;">
+                                I acknowledge that I have read and agree to the terms regarding the responsible use and return of all company assets (e.g., laptop, phone, access cards). *
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="laptopType">Preferred Laptop OS (For asset request)</label>
+                            <select id="laptopType">
+                                <option value="windows">Windows</option>
+                                <option value="mac">macOS</option>
+                                <option value="linux">Linux</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="navigation" style="justify-content: flex-end; padding-bottom: 15px; margin-top: 15px;">
+                        <button type="submit" class="btn btn-primary">Confirm Onboarding Details</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+    </ul>
+    
+    <div class="navigation">
+        <button class="btn btn-secondary" onclick="window.location.href='details.html'">Back</button>
+        <button id="next-btn" class="btn btn-primary" disabled onclick="saveApplicationAndProceed()">Next Step</button>
+    </div>
+</div>
+
+<div id="personalDetailsModal" class="modal">
+    <div class="modal-content">
+        <h2>Personal Details</h2>
+        <form id="personal-details-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="middleName">Middle Name</label>
+                    <input type="text" id="middleName">
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dob">Date of Birth *</label>
+                    <input type="date" id="dob" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" required>
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bloodGroup">Blood Group</label>
+                    <input type="text" id="bloodGroup">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="maritalStatus">Marital Status *</label>
+                    <select id="maritalStatus" required>
+                        <option value="">Select</option>
+                        <option value="single">Single</option>
+                        <option value="married">Married</option>
+                        <option value="divorced">Divorced/Separated</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="smokerStatus">Smoker?</label>
+                    <select id="smokerStatus">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    </div>
+            </div>
+            
+            <div class="navigation" style="justify-content: flex-end;">
+                <button style="margin-right: 15px;" type="button" class="btn btn-secondary" onclick="closeModal('personalDetailsModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Submit Details</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    // --- GLOBAL APPLICATION DATA STORAGE ---
+    let appData = {
+        personal: {}, 
+        communication: {},
+        financial: {},
+        education: [],
+        work: [],
+        onboarding: {}
+    };
+
+    let applicationID = null;
+
+    // --- ACCORDION UTILITIES ---
+
+    function toggleAccordion(headerElement) {
+        const content = headerElement.nextElementSibling;
+        
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+            content.style.paddingTop = '0px';
+            content.style.paddingBottom = '0px';
+        } else {
+            content.style.maxHeight = content.scrollHeight + 36 + "px"; 
+            content.style.paddingTop = '18px';
+            content.style.paddingBottom = '18px';
+        } 
+    }
+    
+    // --- MODAL UTILITIES ---
+
+    function openModal(id, section) {
+        const modal = document.getElementById(id);
+        const form = modal.querySelector('form');
+        
+        // Populate form if data exists (Edit functionality)
+        if (appData.personal && Object.keys(appData.personal).length > 0) {
+            form.querySelector('#firstName').value = appData.personal.firstName || '';
+            form.querySelector('#middleName').value = appData.personal.middleName || '';
+            form.querySelector('#lastName').value = appData.personal.lastName || '';
+            form.querySelector('#dob').value = appData.personal.dob || '';
+            form.querySelector('#gender').value = appData.personal.gender || '';
+            form.querySelector('#bloodGroup').value = appData.personal.bloodGroup || '';
+            form.querySelector('#maritalStatus').value = appData.personal.maritalStatus || '';
+            form.querySelector('#smokerStatus').value = appData.personal.smokerStatus || 'no';
+        } else {
+             form.reset();
+        }
+        
+        modal.style.display = 'block';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('personalDetailsModal');
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // --- TEST DATA PRESETS ---
+    const TEST_PRESETS = {
+        ds_fresher: {
+            personal: { firstName: 'Asha', middleName: '', lastName: 'Rao', dob: '2001-06-15', gender: 'female', bloodGroup: 'O+', maritalStatus: 'single', smokerStatus: 'no' },
+            communication: { email: 'asha.ds@example.com', altEmail: '', phone: '9999999999', altPhone: '', tempAddress: '12 Park Street, Hyderabad', permAddress: '12 Park Street, Hyderabad' },
+            financial: { pan: 'ABCDE1234F', aadhaar: '123412341234', bankName: 'HDFC', accountNumber: '12345678901', ifscCode: 'HDFC0ABC123' },
+            education: [{ degree: 'B.Tech', institution: 'NIT Warangal', branch: 'Computer Science', grade: '8.7 CGPA', startDate: '2018-07-01', endDate: '2022-05-15' }],
+            work: [{ company: 'Campus Project', title: 'Data Science Intern', startDate: '2022-01-01', endDate: '2022-04-30', reason: 'Internship Completed' }],
+            onboarding: { address: 'Hyderabad, Telangana', laptopType: 'windows', assetAcknowledgement: true }
+        },
+        fe_junior: {
+            personal: { firstName: 'Rohan', middleName: '', lastName: 'Mehta', dob: '1999-03-22', gender: 'male', bloodGroup: 'B+', maritalStatus: 'single', smokerStatus: 'no' },
+            communication: { email: 'rohan.fe@example.com', altEmail: '', phone: '8888888888', altPhone: '', tempAddress: '5 MG Road, Pune', permAddress: '5 MG Road, Pune' },
+            financial: { pan: 'PQRSZ6789L', aadhaar: '567856785678', bankName: 'ICICI', accountNumber: '987654321098', ifscCode: 'ICIC0XYZ789' },
+            education: [{ degree: 'B.E.', institution: 'Pune University', branch: 'Information Technology', grade: '76%', startDate: '2017-07-01', endDate: '2021-05-20' }],
+            work: [{ company: 'WebWorks', title: 'Frontend Developer', startDate: '2021-08-01', endDate: '', reason: '' }],
+            onboarding: { address: 'Pune, Maharashtra', laptopType: 'mac', assetAcknowledgement: true }
+        },
+        be_intern: {
+            personal: { firstName: 'Neha', middleName: '', lastName: 'Singh', dob: '2002-11-10', gender: 'female', bloodGroup: 'A+', maritalStatus: 'single', smokerStatus: 'no' },
+            communication: { email: 'neha.be@example.com', altEmail: '', phone: '7777777777', altPhone: '', tempAddress: '44 Ring Road, Bengaluru', permAddress: '44 Ring Road, Bengaluru' },
+            financial: { pan: 'LMNOP3456Q', aadhaar: '901290129012', bankName: 'SBI', accountNumber: '12349876543210', ifscCode: 'SBIN0000123' },
+            education: [{ degree: 'B.Sc.', institution: 'Christ University', branch: 'Computer Science', grade: '8.2 CGPA', startDate: '2019-06-01', endDate: '2022-04-30' }],
+            work: [{ company: 'API Labs', title: 'Backend Intern', startDate: '2023-01-15', endDate: '2023-06-15', reason: 'Internship Completed' }],
+            onboarding: { address: 'Bengaluru, Karnataka', laptopType: 'linux', assetAcknowledgement: true }
+        }
+    };
+
+    function pickRandomPresetKey() {
+        const keys = Object.keys(TEST_PRESETS);
+        return keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    function setElementValue(selector, value) {
+        const el = document.querySelector(selector);
+        if (el) el.value = value || '';
+    }
+
+    function ensureSingleEntry(containerId, entryClass) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const entries = container.querySelectorAll('.' + entryClass);
+        if (entries.length === 0) return;
+        entries.forEach((e, idx) => { if (idx > 0) e.remove(); });
+    }
+
+    function markSectionComplete(sectionStatusId) {
+        const statusElement = document.getElementById(sectionStatusId);
+        if (!statusElement) return;
+        statusElement.textContent = 'Complete';
+        statusElement.classList.remove('incomplete');
+        statusElement.classList.add('complete');
+    }
+
+    function applyTestData(isRandom) {
+        const select = document.getElementById('test-data-select');
+        let key = select.value;
+        if (isRandom || !key) key = pickRandomPresetKey();
+        const preset = TEST_PRESETS[key];
+        const status = document.getElementById('test-data-status');
+        if (!preset) { status.textContent = 'No preset selected'; return; }
+
+        // Personal
+        setElementValue('#firstName', preset.personal.firstName);
+        setElementValue('#middleName', preset.personal.middleName);
+        setElementValue('#lastName', preset.personal.lastName);
+        setElementValue('#dob', preset.personal.dob);
+        setElementValue('#gender', preset.personal.gender);
+        setElementValue('#bloodGroup', preset.personal.bloodGroup);
+        setElementValue('#maritalStatus', preset.personal.maritalStatus);
+        setElementValue('#smokerStatus', preset.personal.smokerStatus);
+        appData.personal = { ...preset.personal };
+        markSectionComplete('personal-details-status');
+
+        // Communication
+        setElementValue('#email', preset.communication.email);
+        setElementValue('#altEmail', preset.communication.altEmail);
+        setElementValue('#phone', preset.communication.phone);
+        setElementValue('#altPhone', preset.communication.altPhone);
+        setElementValue('#tempAddress', preset.communication.tempAddress);
+        setElementValue('#permAddress', preset.communication.permAddress);
+        appData.communication = { ...preset.communication };
+        markSectionComplete('communication-status');
+
+        // Financial
+        setElementValue('#pan', preset.financial.pan);
+        setElementValue('#aadhaar', preset.financial.aadhaar);
+        setElementValue('#bankName', preset.financial.bankName);
+        setElementValue('#accountNumber', preset.financial.accountNumber);
+        setElementValue('#ifscCode', preset.financial.ifscCode);
+        appData.financial = { ...preset.financial };
+        markSectionComplete('financial-status');
+
+        // Education (ensure single entry)
+        ensureSingleEntry('education-entries', 'education-entry');
+        const edu = preset.education[0] || {};
+        const eduEntry = document.querySelector('#education-entries .education-entry');
+        if (eduEntry) {
+            const q = sel => eduEntry.querySelector(sel);
+            if (q('.degree-input')) q('.degree-input').value = edu.degree || '';
+            if (q('.institution-input')) q('.institution-input').value = edu.institution || '';
+            if (q('.branch-input')) q('.branch-input').value = edu.branch || '';
+            if (q('.grade-input')) q('.grade-input').value = edu.grade || '';
+            if (q('.start-date-input')) q('.start-date-input').value = edu.startDate || '';
+            if (q('.end-date-input')) q('.end-date-input').value = edu.endDate || '';
+        }
+        appData.education = [...preset.education];
+        markSectionComplete('education-status');
+
+        // Work (ensure single entry)
+        ensureSingleEntry('work-entries', 'work-entry');
+        const job = preset.work[0] || {};
+        const workEntry = document.querySelector('#work-entries .work-entry');
+        if (workEntry) {
+            const q = sel => workEntry.querySelector(sel);
+            if (q('.company-input')) q('.company-input').value = job.company || '';
+            if (q('.title-input')) q('.title-input').value = job.title || '';
+            if (q('.start-date-input')) q('.start-date-input').value = job.startDate || '';
+            if (q('.end-date-input')) q('.end-date-input').value = job.endDate || '';
+            if (q('.reason-input')) q('.reason-input').value = job.reason || '';
+        }
+        appData.work = [...preset.work];
+        markSectionComplete('work-status');
+
+        // Onboarding
+        setElementValue('#onboardingAddress', preset.onboarding.address);
+        const laptopTypeSelect = document.getElementById('laptopType');
+        if (laptopTypeSelect) laptopTypeSelect.value = preset.onboarding.laptopType || 'windows';
+        const assetAck = document.getElementById('assetAcknowledgement');
+        if (assetAck) assetAck.checked = !!preset.onboarding.assetAcknowledgement;
+        appData.onboarding = { ...preset.onboarding };
+        markSectionComplete('onboarding-status');
+
+        // Enable Next if all complete
+        checkAllSectionsComplete();
+        const nextButton = document.getElementById('next-btn');
+        if (nextButton) nextButton.disabled = false;
+        status.textContent = `Applied preset: ${key}`;
+    }
+
+    // --- DYNAMIC FIELD UTILITIES (Education) ---
+    let educationEntryCount = 1; 
+
+    function addEducationEntry() {
+        educationEntryCount++;
+        const container = document.getElementById('education-entries');
+        const newEntry = container.querySelector('.education-entry').cloneNode(true);
+        
+        newEntry.querySelector('h4').textContent = `Degree ${educationEntryCount}`;
+        newEntry.querySelectorAll('input').forEach(input => {
+            input.value = '';
+            input.required = true;
+        });
+        
+        newEntry.querySelector('.btn-secondary').onclick = function() { removeEducationEntry(this); };
+
+        container.appendChild(newEntry);
+        
+        const content = document.getElementById('education-content');
+        if (content.style.maxHeight) {
+            content.style.maxHeight = content.scrollHeight + newEntry.offsetHeight + 30 + "px";
+        }
+    }
+
+    function removeEducationEntry(buttonElement) {
+        const container = document.getElementById('education-entries');
+        const entries = container.querySelectorAll('.education-entry');
+
+        if (entries.length > 1) {
+            const entryToRemove = buttonElement.closest('.education-entry');
+            entryToRemove.remove();
+            educationEntryCount--;
+
+            container.querySelectorAll('.education-entry').forEach((entry, index) => {
+                entry.querySelector('h4').textContent = `Degree ${index + 1}`;
+            });
+            
+            const content = document.getElementById('education-content');
+            if (content.style.maxHeight) {
+                content.style.maxHeight = content.scrollHeight - entryToRemove.offsetHeight - 10 + "px";
+            }
+
+        } else {
+            alert("You must list at least one educational detail.");
+        }
+    }
+
+    // --- DYNAMIC FIELD UTILITIES (Work Experience) ---
+    let workEntryCount = 1; 
+
+    function addWorkEntry() {
+        workEntryCount++;
+        const container = document.getElementById('work-entries');
+        const newEntry = container.querySelector('.work-entry').cloneNode(true);
+        
+        newEntry.querySelector('h4').textContent = `Job ${workEntryCount}`;
+        newEntry.querySelectorAll('input').forEach(input => {
+            input.value = '';
+        });
+        
+        newEntry.querySelector('.btn-secondary').onclick = function() { removeWorkEntry(this); };
+
+        container.appendChild(newEntry);
+        
+        const content = document.getElementById('work-content');
+        if (content.style.maxHeight) {
+            content.style.maxHeight = content.scrollHeight + newEntry.offsetHeight + 60 + "px";
+        }
+    }
+
+    function removeWorkEntry(buttonElement) {
+        const container = document.getElementById('work-entries');
+        const entries = container.querySelectorAll('.work-entry');
+
+        if (entries.length > 1) {
+            const entryToRemove = buttonElement.closest('.work-entry');
+            entryToRemove.remove();
+            workEntryCount--;
+
+            container.querySelectorAll('.work-entry').forEach((entry, index) => {
+                entry.querySelector('h4').textContent = `Job ${index + 1}`;
+            });
+            
+            const content = document.getElementById('work-content');
+            if (content.style.maxHeight) {
+                content.style.maxHeight = content.scrollHeight - entryToRemove.offsetHeight - 10 + "px"; 
+            }
+        } else {
+            alert("You must list at least one work experience detail.");
+        }
+    }
+
+    // --- DATA GATHERING UTILITIES (MODIFIED for Education Branch) ---
+
+    function gatherDynamicFormData(containerId) {
+        const data = [];
+        const entries = document.getElementById(containerId).querySelectorAll(`.${containerId.replace('-entries', '-entry')}`);
+        
+        entries.forEach(entry => {
+            let item = {};
+            entry.querySelectorAll('input, select').forEach(input => {
+                // Education Fields
+                if (input.classList.contains('degree-input')) item.degree = input.value;
+                if (input.classList.contains('institution-input')) item.institution = input.value;
+                if (input.classList.contains('branch-input')) item.branch = input.value; // <-- CAPTURING NEW FIELD
+                if (input.classList.contains('grade-input')) item.grade = input.value; 
+                if (input.classList.contains('start-date-input')) item.startDate = input.value; 
+                if (input.classList.contains('end-date-input')) item.endDate = input.value; 
+            
+                // Work Experience Fields
+                if (input.classList.contains('company-input')) item.company = input.value;
+                if (input.classList.contains('title-input')) item.title = input.value;
+                if (input.classList.contains('reason-input')) item.reason = input.value;
+                
+            });
+            if (item.degree || item.company) {
+                 data.push(item);
+            }
+        });
+        return data;
+    }
+
+
+    // --- SECTION SUBMISSION LOGIC ---
+
+    function submitPersonalDetails() {
+        const form = document.getElementById('personal-details-form');
+        const statusElement = document.getElementById('personal-details-status');
+        
+        if (form.checkValidity()) {
+            appData.personal = {
+                firstName: form.querySelector('#firstName').value,
+                middleName: form.querySelector('#middleName').value,
+                lastName: form.querySelector('#lastName').value,
+                dob: form.querySelector('#dob').value,
+                gender: form.querySelector('#gender').value,
+                bloodGroup: form.querySelector('#bloodGroup').value,
+                maritalStatus: form.querySelector('#maritalStatus').value,
+                smokerStatus: form.querySelector('#smokerStatus').value,
+            };
+
+            statusElement.textContent = "Complete";
+            statusElement.classList.remove('incomplete');
+            statusElement.classList.add('complete');
+
+            closeModal('personalDetailsModal');
+            checkAllSectionsComplete();
+        } else {
+             form.reportValidity();
+        }
+    }
+
+    document.getElementById('personal-details-form').addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        submitPersonalDetails();
+    });
+    
+    function copyAddress() {
+        const temp = document.getElementById('tempAddress');
+        const perm = document.getElementById('permAddress');
+        const checkbox = document.getElementById('sameAsTemp');
+
+        if (checkbox.checked) {
+            perm.value = temp.value;
+            perm.disabled = true;
+        } else {
+            perm.value = "";
+            perm.disabled = false;
+        }
+    }
+
+    function submitCommunicationDetails() {
+        const form = document.getElementById('communication-form');
+        const statusElement = document.getElementById('communication-status');
+
+        if (form.checkValidity()) {
+            appData.communication = {
+                email: form.querySelector('#email').value,
+                altEmail: form.querySelector('#altEmail').value,
+                phone: form.querySelector('#phone').value,
+                altPhone: form.querySelector('#altPhone').value,
+                tempAddress: form.querySelector('#tempAddress').value,
+                permAddress: form.querySelector('#permAddress').value,
+            };
+
+            statusElement.textContent = "Complete";
+            statusElement.classList.remove('incomplete');
+            statusElement.classList.add('complete');
+            toggleAccordion(statusElement.closest('button'));
+            checkAllSectionsComplete();
+        } else {
+             form.reportValidity();
+        }
+    }
+
+    function submitFinancialDetails() {
+        const form = document.getElementById('financial-form');
+        const statusElement = document.getElementById('financial-status');
+
+        if (form.checkValidity()) {
+            appData.financial = {
+                pan: form.querySelector('#pan').value,
+                aadhaar: form.querySelector('#aadhaar').value,
+                bankName: form.querySelector('#bankName').value,
+                accountNumber: form.querySelector('#accountNumber').value,
+                ifscCode: form.querySelector('#ifscCode').value, // REVERTED: Original fields only
+            };
+
+            statusElement.textContent = "Complete";
+            statusElement.classList.remove('incomplete');
+            statusElement.classList.add('complete');
+            toggleAccordion(statusElement.closest('button'));
+            checkAllSectionsComplete();
+        } else {
+             form.reportValidity();
+        }
+    }
+    
+    function skipFinancialDetails() {
+        const statusElement = document.getElementById('financial-status');
+        
+        // Clear data on skip 
+        appData.financial = { status: "Skipped" };
+
+        statusElement.textContent = "Skipped (Complete)";
+        statusElement.classList.remove('incomplete');
+        statusElement.classList.add('complete');
+
+        const headerButton = statusElement.closest('button');
+        toggleAccordion(headerButton);
+        
+        checkAllSectionsComplete();
+    }
+    
+    function submitEducationDetails() {
+        const form = document.getElementById('education-form');
+        const statusElement = document.getElementById('education-status');
+
+        appData.education = gatherDynamicFormData('education-entries');
+
+        if (form.checkValidity() && appData.education.length > 0) {
+            statusElement.textContent = "Complete";
+            statusElement.classList.remove('incomplete');
+            statusElement.classList.add('complete');
+            toggleAccordion(statusElement.closest('button'));
+            checkAllSectionsComplete();
+        } else {
+             alert("Please ensure at least one educational entry is complete.");
+             form.reportValidity();
+        }
+    }
+    
+    function submitWorkDetails() {
+        const form = document.getElementById('work-form');
+        const statusElement = document.getElementById('work-status');
+        
+        appData.work = gatherDynamicFormData('work-entries');
+
+        if (form.checkValidity() && appData.work.length > 0) {
+            statusElement.textContent = "Complete";
+            statusElement.classList.remove('incomplete');
+            statusElement.classList.add('complete');
+            toggleAccordion(statusElement.closest('button'));
+            checkAllSectionsComplete();
+        } else {
+             alert("Please ensure at least one work entry is complete.");
+             form.reportValidity();
+        }
+    }
+
+    function skipWorkDetails() {
+        const statusElement = document.getElementById('work-status');
+        
+        // Clear data on skip 
+        appData.work = { status: "Skipped" };
+
+        statusElement.textContent = "Skipped (Complete)";
+        statusElement.classList.remove('incomplete');
+        statusElement.classList.add('complete');
+
+        const headerButton = statusElement.closest('button');
+        toggleAccordion(headerButton);
+        
+        checkAllSectionsComplete();
+    }
+
+    function submitOnboardingDetails() {
+        const form = document.getElementById('onboarding-form');
+        const statusElement = document.getElementById('onboarding-status');
+
+        if (form.checkValidity()) {
+            appData.onboarding = {
+                address: form.querySelector('#onboardingAddress').value,
+                laptopType: form.querySelector('#laptopType').value,
+                assetAcknowledgement: form.querySelector('#assetAcknowledgement').checked,
+            };
+
+            statusElement.textContent = "Complete";
+            statusElement.classList.remove('incomplete');
+            statusElement.classList.add('complete');
+            toggleAccordion(statusElement.closest('button'));
+            checkAllSectionsComplete();
+        } else {
+             form.reportValidity();
+        }
+    }
+
+    // --- FINAL BACKEND SUBMISSION ---
+
+    async function saveApplicationAndProceed() {
+        const nextButton = document.getElementById('next-btn');
+        nextButton.disabled = true;
+        nextButton.textContent = "Saving...";
+
+        appData.jobTitle = localStorage.getItem('selected_job_title') || 'Job Unknown';
+        appData.jobDescription = localStorage.getItem('selected_job_description') || '';
+
+        try {
+            const response = await fetch('http://localhost:5000/api/save_details', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(appData),
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                applicationID = result.application_id;
+                localStorage.setItem('current_app_id', applicationID);
+                
+                window.location.href = 'upload.html';
+            } else {
+                alert(`Error saving application details: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Network Error:', error);
+            alert('Failed to connect to the server (Is the Python server running on port 5000?).');
+        } finally {
+            nextButton.disabled = false;
+            nextButton.textContent = "Next Step";
+        }
+    }
+
+    // --- FINAL NAVIGATION CHECK ---
+
+    function checkAllSectionsComplete() {
+        const personalStatus = document.getElementById('personal-details-status').textContent;
+        const communicationStatus = document.getElementById('communication-status').textContent;
+        const financialStatus = document.getElementById('financial-status').textContent; 
+        const educationStatus = document.getElementById('education-status').textContent; 
+        const workStatus = document.getElementById('work-status').textContent;
+        const onboardingStatus = document.getElementById('onboarding-status').textContent; 
+        
+        const nextButton = document.getElementById('next-btn');
+        
+        if (personalStatus.includes("Complete") && 
+            communicationStatus.includes("Complete") &&
+            financialStatus.includes("Complete") &&
+            educationStatus.includes("Complete") &&
+            workStatus.includes("Complete") &&
+            onboardingStatus.includes("Complete")) {
+             nextButton.disabled = false;
+        } else {
+             nextButton.disabled = true;
+        }
+    }
+</script>
+
+</body>
+</html>

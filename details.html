@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Application - Step 1</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgb(0, 128, 0); }
+        h1 { text-align: center; color: #28a752; }
+        h2 {text-align:center; color:#28a752;}
+        label { display: block; margin-top: 20px; font-weight: bold; }
+        
+        .details-section { margin-top: 25px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa; }
+        .details-section h3 { color: #28a752; margin-top: 0; }
+        ul { list-style-type: disc; margin-left: 20px; }
+        .navigation { display: flex; justify-content: space-between; margin-top: 30px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .btn-primary { background-color: #28a752; color: white; }
+        .btn-secondary { background-color: #28a752; color: white; }
+        .hidden { display: none; }
+        
+        /* --- CUSTOM DROPDOWN STYLES --- */
+        .custom-select-container {
+            position: relative;
+            width: 100%;
+            margin-top: 5px;
+        }
+        
+        .custom-select-display {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        
+        /* Green Focus and Hover for the Display Box */
+        .custom-select-display:hover {
+            border: 1px solid #28a752;
+            box-shadow: 0 0 5px rgba(40, 167, 82, 0.7); 
+        }
+        .custom-select-display:focus {
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(40, 167, 82, 0.5), 
+                        0 0 0 5px rgba(255, 255, 255, 0.5); 
+            border-color: #28a752;
+        }
+        
+        /* --- OPTION LIST STYLES (Custom Dropdown) --- */
+        .custom-select-options {
+            position: absolute;
+            top: 100%; 
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+            background-color: #fff;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 0 0 4px 4px;
+        }
+        
+        .custom-select-options li {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        /* 🟢 THE CRITICAL GREEN HIGHLIGHT 🟢 */
+        .custom-select-options li:hover,
+        .custom-select-options li.selected {
+            background-color: #eaf8ed; /* Light Green Background */
+            color: #28a752;           /* Darker Green Text */
+        }
+        
+        /* Green Focus Style for Accessibility (Buttons only) */
+        .btn:focus {
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(40, 167, 82, 0.5), 
+                        0 0 0 5px rgba(255, 255, 255, 0.5); 
+            border-color: #28a752;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Welcome to careers at Medquest</h1>
+
+    <label for="job-select">Select a job position to begin your application process.</label>
+
+    <div class="custom-select-container">
+        <div id="custom-job-display" 
+             class="custom-select-display" 
+             tabindex="0" 
+             onclick="toggleDropdown()"
+             onkeydown="handleKeydown(event)">
+            -- Please select a job --
+        </div>
+        
+        <ul id="custom-job-options" class="custom-select-options hidden">
+            <li data-value="frontend" onclick="selectJob('frontend', this)">Senior Frontend Developer</li>
+            <li data-value="backend" onclick="selectJob('backend', this)">Backend Engineer (Node.js)</li>
+            <li data-value="designer" onclick="selectJob('designer', this)">UX/UI Designer</li>
+            <li data-value="datascientist" onclick="selectJob('datascientist', this)">Data Science</li>
+            <li data-value="productmanager" onclick="selectJob('productmanager', this)">Product Manager</li>
+            <li data-value="marketing" onclick="selectJob('marketing', this)">Marketing Specialist</li>
+        </ul>
+    </div>
+
+    <div id="job-details" class="details-section hidden">
+        <h2><span id="job-title"></span> Details</h2>
+
+        <div id="summary-area">
+            <h3>Position Summary</h3>
+            <p id="position-summary"></p>
+        </div>
+
+        <div id="eligibility-area">
+            <h3>Eligibility Criteria</h3>
+            <ul id="eligibility-list"></ul>
+        </div>
+
+        <div id="responsibilities-area">
+            <h3>Key Responsibilities</h3>
+            <ul id="responsibilities-list"></ul>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="btn btn-secondary" onclick="alert('Go back to Careers Home page.')">Back</button>
+        <button id="next-btn" class="btn btn-primary hidden" onclick="window.location.href='consent.html'">Next</button>
+    </div>
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

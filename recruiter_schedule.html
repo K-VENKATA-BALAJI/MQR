@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Schedule</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+        .container { max-width: 95%; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
+        .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+        .toolbar input, .toolbar select { padding: 6px 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #e5e5e5; text-align: left; }
+        th { background: #28a745; color: white; position: sticky; top: 0; z-index: 1; }
+        tr:hover { background: #f9fff9; }
+        .status-pill { padding: 6px 10px; border-radius: 12px; color: white; font-weight: bold; font-size: 0.85em; display: inline-block; }
+        .pill-go { background: #28a745; }
+        .pill-pending { background: #ffc107; color: #333; }
+        .pill-nogo { background: #dc3545; }
+        .btn { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-link { background: transparent; color: #007bff; text-decoration: underline; padding: 0; }
+        .btn-mail { background: #17a2b8; color: white; }
+        .btn-mail:hover { background: #138496; }
+        .table-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .group-title { margin-top: 24px; color: #28a745; font-weight: bold; }
+        .legend { margin-top: 10px; font-size: 0.9em; color: #555; }
+        .legend span { margin-right: 12px; }
+        .app-id-link { color: #007bff; text-decoration: underline; cursor: pointer; }
+        .app-id-link:hover { color: #0056b3; }
+        /* Split Panel (inline - unused now) */
+        .split-panel { display: none; gap: 16px; margin-top: 16px; }
+        .split-left, .split-right { flex: 1 1 0; background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; padding: 16px; }
+        .split-section-title { margin: 0 0 10px 0; color: #333; border-bottom: 2px solid #28a745; padding-bottom: 6px; }
+        /* Split Modal */
+        .split-modal-content { width: 90%; max-width: 1100px; }
+        .split-modal-body { display: flex; gap: 16px; }
+        .split-modal-col { flex: 1 1 0; background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; padding: 16px; overflow-y: auto; max-height: 70vh; }
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* Enlarge split modal specifically */
+        .modal-content.split-modal-content { width: 95%; max-width: 1300px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
+        .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    </style>
+    <script defer src="recruiter_schedule.js"></script>
+    </head>
+<body>
+
+    <div class="container">
+        <h1>Recruiter Schedule</h1>
+
+        <div class="toolbar">
+            <label for="status-filter" style="font-weight:bold;">Show:</label>
+            <select id="status-filter">
+                <option value="all">All</option>
+                <option value="new">New invites</option>
+                <option value="inprogress">In progress</option>
+                <option value="hired">Hired (all Go)</option>
+                <option value="rejected">Rejected (No go)</option>
+            </select>
+            <label for="process-filter" style="font-weight:bold;">Process:</label>
+            <select id="process-filter">
+                <option value="all">All</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+            </select>
+            <label for="search-app" style="font-weight:bold;">Application ID:</label>
+            <input id="search-app" type="text" placeholder="Search MQ-..." />
+            <button class="btn btn-secondary" id="refresh-button">Refresh</button>
+            <span id="count-label" style="margin-left:auto; color:#555;"></span>
+        </div>
+
+    <!-- Split Modal: Applicant Details (left) and RSVP (right) -->
+    <div id="splitModal" class="modal">
+      <div class="modal-content split-modal-content">
+        <div class="modal-header">
+          <h2>Application</h2>
+          <span class="close" onclick="closeSplitModal()">&times;</span>
+        </div>
+        <div class="split-modal-body">
+          <div class="split-modal-col">
+            <h3 class="split-section-title">Applicant Details</h3>
+            <div id="splitModalLeftBody">Select an Application ID to view details.</div>
+          </div>
+          <div class="split-modal-col">
+            <h3 class="split-section-title">RSVP Response</h3>
+            <div id="splitModalRightBody">RSVP status will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        
+
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Application</th>
+                    <th>Interviewer</th>
+                    <th>Position</th>
+                    <th>Source</th>
+                    <th>Phone Interview</th>
+                    <th>In‑person Interview</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="schedule-body"></tbody>
+        </table>
+        <datalist id="interviewers-list">
+            <option value="Anita Rao"></option>
+            <option value="Rakesh Kumar"></option>
+            <option value="Priya Nair"></option>
+            <option value="Vikram Singh"></option>
+            <option value="Neha Sharma"></option>
+        </datalist>
+    </div>
+
+    <!-- Applicant Details Modal -->
+    <div id="applicantDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header" style="border-bottom: 2px solid #28a745;">
+                <h2>Applicant Details</h2>
+                <span class="close" onclick="closeApplicantDetails()">&times;</span>
+            </div>
+            <div id="applicantDetailsBody">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Mail Modal -->
+    <div id="mailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Send Status Email</h2>
+                <span class="close" onclick="closeMailModal()">&times;</span>
+            </div>
+            <form id="mail-form" onsubmit="event.preventDefault(); sendStatusEmail()">
+                <div class="form-group">
+                    <label for="interview-date">Interview Date *</label>
+                    <input type="date" id="interview-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="interview-time">Interview Time *</label>
+                    <input type="time" id="interview-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="process-status">Process Status *</label>
+                    <select id="process-status" required>
+                        <option value="">Select Status</option>
+                        <option value="Resume Shortlisted - Phone Interview Scheduled">Resume Shortlisted - Phone Interview Scheduled</option>
+                        <option value="Phone Interview Completed - In-person Interview Scheduled">Phone Interview Completed - In-person Interview Scheduled</option>
+                        <option value="Final Interview Scheduled">Final Interview Scheduled</option>
+                        <option value="On Hold">On Hold</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="additional-notes">Additional Notes (Optional)</label>
+                    <textarea id="additional-notes" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeMailModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
+

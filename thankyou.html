@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Confirmed - Thank You</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; text-align: center; }
+        .container { 
+            max-width: 600px; 
+            margin: auto; 
+            background: #fff; 
+            padding: 50px 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgb(40, 167, 82); 
+            border-top: 10px solid #28a752; /* Green top border for emphasis */
+        }
+        h1 { color: #28a752; font-size: 2.5em; margin-bottom: 10px; }
+        p { font-size: 1.1em; line-height: 1.6; color: #333; }
+        .footer-link { margin-top: 30px; }
+        .app-id {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #000;
+            padding: 10px;
+            background-color: #eaf8ed; /* Light green background */
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Application Submitted Successfully! 🥳</h1>
+        <p>Thank you for applying to Medquest. Your comprehensive application has been received and is now under review.</p>
+        
+        <p>You will receive an automated email confirmation shortly detailing the next steps in our hiring process.</p>
+        
+        <p><strong>Your Application ID:</strong></p>
+        <div class="app-id" id="applicationIdDisplay">MQ-2025-XXXXX</div>
+
+        <div class="footer-link">
+            <p>For more career opportunities, visit our <a href="details.html">Careers Page</a>.</p>
+        </div>
+    </div>
+
+    <script>
+        // Robust retrieval of the Application ID and safer cleanup
+        document.addEventListener('DOMContentLoaded', function() {
+            const displayElement = document.getElementById('applicationIdDisplay');
+
+            function getParam(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name) || '';
+            }
+
+            // Priority: URL param > sessionStorage > localStorage
+            let appId = getParam('app_id');
+            if (!appId) {
+                try { appId = sessionStorage.getItem('current_app_id') || appId; } catch (e) {}
+            }
+            if (!appId) {
+                appId = localStorage.getItem('current_app_id') || '';
+            }
+
+            if (appId) {
+                displayElement.textContent = appId;
+            } else {
+                displayElement.textContent = 'ID Unavailable (Please check your email)';
+                displayElement.style.color = '#dc3545';
+            }
+
+            // Defer cleanup longer and keep session/local if page was opened without param
+            setTimeout(() => {
+                if (getParam('app_id')) {
+                    try { sessionStorage.removeItem('current_app_id'); } catch (e) {}
+                    localStorage.removeItem('current_app_id');
+                }
+                localStorage.removeItem('selected_job_title');
+                localStorage.removeItem('selected_job_description');
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
