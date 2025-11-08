@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import io
 
-# PDF extraction libraries
+
 PDF_EXTRACTION_AVAILABLE = False
 PDF_LIBRARY = None
 try:
