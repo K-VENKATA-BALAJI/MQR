@@ -114,21 +114,11 @@
         formData.append('resume', file);
 
         try {
-            // CRITICAL FIX: Wait for upload to complete before redirecting
-            // Try 127.0.0.1 first, then localhost as fallback
-            let response;
-            try {
-                response = await fetch(`http://127.0.0.1:5000/api/submit_application/${applicationId}`, {
-                    method: 'POST',
-                    body: formData,
-                });
-            } catch (_) {}
-            if (!response) {
-                response = await fetch(`http://localhost:5000/api/submit_application/${applicationId}`, {
+            // Submit to same-origin backend (works on Railway and locally if served via Flask)
+            const response = await fetch(`/api/submit_application/${applicationId}`, {
                 method: 'POST',
                 body: formData,
-                });
-            }
+            });
 
             // Check if response is OK
             if (!response.ok) {

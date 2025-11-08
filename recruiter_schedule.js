@@ -1,4 +1,4 @@
-let BASE_URL = "http://127.0.0.1:5000";
+let BASE_URL = window.location.origin || "";
 const RECRUITER_KEY = "YourVerySecretRecruiterKey12345";
 
 const STATUS_OPTIONS = ["Go", "Pending", "No go"];

@@ -32,7 +32,7 @@ except ImportError:
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 # Initialize CORS globally
 CORS(app) 
 

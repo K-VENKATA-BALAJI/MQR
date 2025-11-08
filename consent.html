@@ -990,7 +990,7 @@
         appData.jobDescription = localStorage.getItem('selected_job_description') || '';
 
         try {
-            const response = await fetch('http://localhost:5000/api/save_details', {
+            const response = await fetch('/api/save_details', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1010,7 +1010,7 @@
             }
         } catch (error) {
             console.error('Network Error:', error);
-            alert('Failed to connect to the server (Is the Python server running on port 5000?).');
+            alert('Failed to connect to the server. Please try again.');
         } finally {
             nextButton.disabled = false;
             nextButton.textContent = "Next Step";

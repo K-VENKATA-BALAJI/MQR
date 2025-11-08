@@ -1,5 +1,5 @@
 const RECRUITER_KEY = "YourVerySecretRecruiterKey12345";
-const BASE_URL = "http://127.0.0.1:5000";
+const BASE_URL = window.location.origin || "";
 const SHORTLISTED_APPLICANTS = []; // Current filtered set for "Invite All"
 const ALL_APPLICATIONS = []; // Full list from backend
 
