@@ -1792,8 +1792,8 @@ def get_schedule():
                    COALESCE(i.application_status, 'Open') AS application_status,
                    COALESCE(i.rsvp_status, 'Pending') AS rsvp_status
             FROM applications a
-            INNER JOIN invites i ON i.app_id = a.app_id
-            ORDER BY i.invited_at DESC
+            LEFT JOIN invites i ON i.app_id = a.app_id
+            ORDER BY COALESCE(i.invited_at, '') DESC
         ''')
         rows = cursor.fetchall()
         # Also fetch applicant email for direct mailto links
