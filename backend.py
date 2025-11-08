@@ -1,6 +1,7 @@
 import os
 import json
 import smtplib
+import socket
 import sqlite3
 import random 
 import re
@@ -157,6 +158,11 @@ def send_confirmation_email(recipient_email, applicant_name, job_title, app_id):
     smtp_host = os.getenv("EMAIL_HOST")
     smtp_port = int(os.getenv("EMAIL_PORT", 587))
 
+    # Fast-fail if SMTP creds are not configured in the environment
+    if not smtp_host or not sender_email or not sender_password:
+        print("Email disabled or SMTP credentials missing; skipping confirmation email.")
+        return False
+
     subject = f"Medquest Application Confirmed: {job_title} - {applicant_name}"
     body = f"""
     Dear {applicant_name},
@@ -177,7 +183,8 @@ def send_confirmation_email(recipient_email, applicant_name, job_title, app_id):
     msg['To'] = recipient_email
 
     try:
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
+        # Ensure we don't block the worker forever
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(msg)
@@ -193,6 +200,10 @@ def send_interview_invite(recipient_email, applicant_name, job_title):
     sender_password = os.getenv("EMAIL_HOST_PASSWORD")
     smtp_host = os.getenv("EMAIL_HOST")
     smtp_port = int(os.getenv("EMAIL_PORT", 587))
+
+    if not smtp_host or not sender_email or not sender_password:
+        print("Email disabled or SMTP credentials missing; skipping invite email.")
+        return False
 
     subject = f"Your Resume is Shortlisted: Interview Invitation for {job_title}"
     body = f"""
@@ -214,7 +225,7 @@ def send_interview_invite(recipient_email, applicant_name, job_title):
     msg['To'] = recipient_email
 
     try:
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(msg)
@@ -230,6 +241,10 @@ def send_status_email(recipient_email, applicant_name, job_title, app_id, proces
     sender_password = os.getenv("EMAIL_HOST_PASSWORD")
     smtp_host = os.getenv("EMAIL_HOST")
     smtp_port = int(os.getenv("EMAIL_PORT", 587))
+
+    if not smtp_host or not sender_email or not sender_password:
+        print("Email disabled or SMTP credentials missing; skipping status email.")
+        return False
     
     # Format date and time
     from datetime import datetime
@@ -276,7 +291,7 @@ The Medquest Careers Team
     msg['Reply-To'] = sender_email  # Enable reply functionality
 
     try:
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(msg)
