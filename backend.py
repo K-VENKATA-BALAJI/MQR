@@ -151,6 +151,43 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def _smtp_send_message(msg):
+    """Sends an email message using env SMTP settings with robust fallbacks.
+    Tries STARTTLS on 587 first, then SSL on 465. Returns True on success, else False.
+    """
+    sender_email = os.getenv("EMAIL_HOST_USER")
+    sender_password = os.getenv("EMAIL_HOST_PASSWORD")
+    smtp_host = os.getenv("EMAIL_HOST")
+    smtp_port = int(os.getenv("EMAIL_PORT", 587))
+
+    if not smtp_host or not sender_email or not sender_password:
+        print("SMTP missing configuration: EMAIL_HOST/EMAIL_HOST_USER/EMAIL_HOST_PASSWORD")
+        return False
+
+    # Attempt STARTTLS (default 587)
+    try:
+        import smtplib as _s
+        port = smtp_port or 587
+        with _s.SMTP(smtp_host, port, timeout=15) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        return True
+    except Exception as e1:
+        # Try SSL 465
+        try:
+            with smtplib.SMTP_SSL(smtp_host, 465, timeout=15) as server:
+                server.ehlo()
+                server.login(sender_email, sender_password)
+                server.send_message(msg)
+            return True
+        except Exception as e2:
+            print(f"SMTP errors -> starttls:{e1} | ssl:{e2}")
+            return False
+
+
 def send_confirmation_email(recipient_email, applicant_name, job_title, app_id):
     """Sends a confirmation email to the applicant."""
     sender_email = os.getenv("EMAIL_HOST_USER")
@@ -182,16 +219,13 @@ def send_confirmation_email(recipient_email, applicant_name, job_title, app_id):
     msg['From'] = sender_email
     msg['To'] = recipient_email
 
-    try:
-        # Ensure we don't block the worker forever
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
+    # Use robust sender
+    ok = _smtp_send_message(msg)
+    if ok:
         print(f"Confirmation email sent to {recipient_email}")
         return True
-    except Exception as e:
-        print(f"Error sending email: {e}")
+    else:
+        print("Error sending confirmation email (see logs above for SMTP details)")
         return False
         
 def send_interview_invite(recipient_email, applicant_name, job_title):
@@ -224,15 +258,12 @@ def send_interview_invite(recipient_email, applicant_name, job_title):
     msg['From'] = sender_email
     msg['To'] = recipient_email
 
-    try:
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
+    ok = _smtp_send_message(msg)
+    if ok:
         print(f"Interview invite sent to {recipient_email} for {job_title}")
         return True
-    except Exception as e:
-        print(f"Error sending invite email to {recipient_email}: {e}")
+    else:
+        print(f"Error sending invite email to {recipient_email} (see logs above)")
         return False
 
 def send_status_email(recipient_email, applicant_name, job_title, app_id, process_status, interview_date, interview_time, additional_notes=None, rsvp_token=None):
@@ -290,15 +321,12 @@ The Medquest Careers Team
     msg['To'] = recipient_email
     msg['Reply-To'] = sender_email  # Enable reply functionality
 
-    try:
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
+    ok = _smtp_send_message(msg)
+    if ok:
         print(f"Status email sent to {recipient_email} for {job_title} - {app_id}")
         return True
-    except Exception as e:
-        print(f"Error sending status email to {recipient_email}: {e}")
+    else:
+        print(f"Error sending status email to {recipient_email} (see logs above)")
         return False
 
 def flatten_application_data(data, app_id):
