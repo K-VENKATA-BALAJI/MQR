@@ -36,6 +36,39 @@ app = Flask(__name__)
 # Initialize CORS globally
 CORS(app) 
 
+# Serve HTML pages
+@app.route('/')
+def root():
+    return send_file('consent.html')
+
+@app.route('/consent.html')
+def consent_page():
+    return send_file('consent.html')
+
+@app.route('/details.html')
+def details_page():
+    return send_file('details.html')
+
+@app.route('/upload.html')
+def upload_page():
+    return send_file('upload.html')
+
+@app.route('/thankyou.html')
+def thankyou_page():
+    return send_file('thankyou.html')
+
+@app.route('/recruiter_dashboard.html')
+def recruiter_dashboard_page():
+    return send_file('recruiter_dashboard.html')
+
+@app.route('/recruiter_schedule.html')
+def recruiter_schedule_page():
+    return send_file('recruiter_schedule.html')
+
+@app.route('/resume_viewer.html')
+def resume_viewer_page():
+    return send_file('resume_viewer.html')
+
 # --- CONFIGURATION ---
 UPLOAD_FOLDER = 'resumes'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
